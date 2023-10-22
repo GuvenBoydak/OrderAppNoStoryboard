@@ -184,7 +184,7 @@ extension DetailViewController {
         setTotalPrice()
     }
     private func setTotalPrice(){
-        guard var quantity = Int(quantityLabel.text ?? "0"),var price = Int(food?.yemek_fiyat ?? "0") else { return }
+        guard let quantity = Int(quantityLabel.text ?? "0"),let price = Int(food?.yemek_fiyat ?? "0") else { return }
         totalPriceLabel.text = "\(price * quantity) ₺"
     }
 }
@@ -210,6 +210,14 @@ extension DetailViewController {
         detailVM.addToFavorite(food: data)
     }
     @objc private func addToBasket() {
-        
+        guard let data = food else {return}
+        let basket = Basket(sepet_yemek_id: food?.yemek_id ?? "",
+                            yemek_adi: food?.yemek_adi ?? "",
+                            yemek_resim_adi: food?.yemek_resim_adi ?? "",
+                            yemek_fiyat: food?.yemek_fiyat ?? "",
+                            yemek_siparis_adet: quantityLabel.text ?? "",
+                            kullanici_adi: "Guven")
+        detailVM.addToBasket(item: basket)
+        detailVM.addBasketToFirebase(item: basket)
     }
 }
