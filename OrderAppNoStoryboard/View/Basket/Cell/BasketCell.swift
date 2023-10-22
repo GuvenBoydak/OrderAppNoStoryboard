@@ -7,7 +7,7 @@
 
 import UIKit
 protocol BasketCellProtocol: AnyObject {
-    func deleteFromBasket(cell: BasketCell,id: Int)
+    func deleteFromBasket(id: Int)
 }
 
 final class BasketCell: UICollectionViewCell {
@@ -15,7 +15,7 @@ final class BasketCell: UICollectionViewCell {
     var basketItem: Basket? {
         didSet { configure()}
     }
-    var basketVM = BasketViewModel()
+    var delegate: BasketCellProtocol?
     
     private let cellContainerView: UIView = {
         let view = UIView()
@@ -91,7 +91,6 @@ extension BasketCell {
         labelStackView.translatesAutoresizingMaskIntoConstraints = false
         fullStackView = UIStackView(arrangedSubviews: [appImage,labelStackView,buttonStackView])
         fullStackView.axis = .horizontal
-        fullStackView.spacing = 20
         fullStackView.translatesAutoresizingMaskIntoConstraints = false
     }
     private func layout() {
@@ -105,9 +104,9 @@ extension BasketCell {
             cellContainerView.trailingAnchor.constraint(equalTo: trailingAnchor,constant: -16),
             cellContainerView.leadingAnchor.constraint(equalTo: leadingAnchor,constant: 16),
             buttonStackView.topAnchor.constraint(equalTo: cellContainerView.topAnchor,constant: 12),
-            buttonStackView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor,constant: -12),
+            buttonStackView.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor,constant: -20),
             labelStackView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 8),
-            labelStackView.centerXAnchor.constraint(equalTo: cellContainerView.centerXAnchor),
+            labelStackView.leadingAnchor.constraint(equalTo: appImage.trailingAnchor,constant: 24),
             fullStackView.topAnchor.constraint(equalTo: cellContainerView.topAnchor, constant: 18),
             appImage.widthAnchor.constraint(equalToConstant: 110),
             appImage.heightAnchor.constraint(equalToConstant: 110),
@@ -117,15 +116,20 @@ extension BasketCell {
     private func configure() {
         guard let data = basketItem else { return }
         nameLabel.text = data.yemek_adi
-        priceLabel.text = data.yemek_fiyat
-        quantityLabel.text = data.yemek_siparis_adet
+        priceLabel.text = "Fiyat: \(data.yemek_fiyat ?? "0")₺"
+        quantityLabel.text = "Adet: \(data.yemek_siparis_adet ?? "0")"
         appImage.setImage(fromURL: "\(URL_IMAGE)\(data.yemek_resim_adi ?? "")")
+        calculateTotalPrice()
+    }
+    private func calculateTotalPrice() {
+        guard let basketData = basketItem, let quantity = Int(basketData.yemek_siparis_adet ?? "0"), let price = Int(basketData.yemek_fiyat ?? "0") else { return}
+        totalPriceLabel.text = "\(price * quantity)₺"
     }
 }
 // MARK: - Selectors
 extension BasketCell {
-    @objc private func deletefromBasket(id: Int) {
+    @objc private func deletefromBasket() {
         guard let id = Int(basketItem?.sepet_yemek_id ?? "0") else { return }
-        basketVM.deleteFromBasket(id: id)
+        delegate?.deleteFromBasket(id:id)
     }
 }

@@ -11,7 +11,7 @@ private let reuseBasketCellIdentifier = "BasketCell"
 final class BasketViewController: UICollectionViewController {
     // MARK: - Properties
     var basketVM = BasketViewModel()
-    weak var delegate: BasketCellProtocol?
+   // weak var delegate: BasketCellProtocol?
     
     private let totalPriceContainerView: UIView = {
         let view = UIView()
@@ -49,11 +49,7 @@ final class BasketViewController: UICollectionViewController {
          layout()
      }
     override func viewWillAppear(_ animated: Bool) {
-        basketVM.getBasketFoods { basket in
-            if basket != nil {
-                self.collectionView.reloadData()
-            }
-        }
+        getBasketItems()
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -66,7 +62,8 @@ extension BasketViewController {
         collectionView.register(BasketCell.self, forCellWithReuseIdentifier: reuseBasketCellIdentifier)
         totalPriceStackView = UIStackView(arrangedSubviews: [totalLabel,totalPriceLabel])
         totalPriceStackView.axis = .horizontal
-        totalPriceStackView.spacing = 150
+        totalPriceStackView.spacing = 170
+        totalPriceLabel.translatesAutoresizingMaskIntoConstraints = false
         totalPriceStackView.translatesAutoresizingMaskIntoConstraints = false
         totalPriceContainerView.translatesAutoresizingMaskIntoConstraints = false
         super.collectionView!.translatesAutoresizingMaskIntoConstraints = false
@@ -93,6 +90,23 @@ extension BasketViewController {
             conformBasketButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8)
         ])
     }
+    private func calculateTotalprice() {
+        let totalPrice = basketVM.basketFoods?.compactMap { item in
+            if let price = Int(item.yemek_fiyat ?? "0"), let quantity = Int(item.yemek_siparis_adet ?? "0") {
+                return price * quantity
+            }
+            return nil
+        }.reduce(0, +)
+        totalPriceLabel.text = "\(totalPrice ?? 0)₺"
+    }
+    private func getBasketItems() {
+        basketVM.getBasketFoods { basket in
+            if basket != nil {
+                self.collectionView.reloadData()
+                self.calculateTotalprice()
+            }
+        }
+    }
 }
 // MARK: - UICollectionViewDatasource
 extension BasketViewController {
@@ -103,7 +117,11 @@ extension BasketViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseBasketCellIdentifier, for: indexPath) as! BasketCell
         cell.basketItem = basketVM.basketFoods?[indexPath.row]
+        cell.delegate = self
         return cell
+    }
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+       getBasketItems()
     }
 }
 // MARK: - UICollectionViewDelegateFlowLayout
@@ -114,7 +132,9 @@ extension BasketViewController: UICollectionViewDelegateFlowLayout {
 }
 // MARK: - BasketCellProtocol
 extension BasketViewController: BasketCellProtocol {
-    func deleteFromBasket(cell: BasketCell, id: Int) {
-        delegate?.deleteFromBasket(cell: BasketCell(), id: id)
+    func deleteFromBasket( id: Int) {
+        basketVM.deleteFromBasket(id: id)
+        getBasketItems()
+        basketVM.addToFirebase(id: id)
     }
 }

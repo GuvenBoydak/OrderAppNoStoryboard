@@ -13,7 +13,7 @@ final class BasketViewModel {
         
     func getBasketFoods(complation: @escaping ([Basket]?)->()) {
         let params : [String:Any] = ["kullanici_adi":"Guven"]
-        NetworkService.fetchData(type: ResponseBasket.self, url: URL_BASKET, method: .post, params: params) { resul, error in
+        NetworkService.fetchData(type: ResponseBasket.self, url: "sepettekiYemekleriGetir.php", method: .post, params: params) { resul, error in
             if error != nil {
                 print(error?.localizedDescription ?? "error")
                 return
@@ -26,10 +26,15 @@ final class BasketViewModel {
     }
     func deleteFromBasket(id: Int) {
         let params : [String:Any] = ["sepet_yemek_id":id,"kullanici_adi":"Guven"]
-        NetworkService.fetchData(type: Response.self, url: URL_DELETEITEM, method: .post, params: params) { result, error in
+        NetworkService.fetchData(type: Response.self, url: "sepettenYemekSil.php", method: .post, params: params) { result, error in
             if error != nil {
                return print(error?.localizedDescription ?? "error")
             }
         }
+    }
+    func addToFirebase(id: Int){
+        let item = basketFoods?.first{food in food.sepet_yemek_id == String(id)}
+        let params: [String:Any] = ["name":item?.yemek_adi ?? "","fiyat":item?.yemek_fiyat ?? "","status":Status.deleted.rawValue]
+        URL_FIREBASE.document().setData(params)
     }
 }
