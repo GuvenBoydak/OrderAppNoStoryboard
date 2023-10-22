@@ -35,6 +35,10 @@ final class BasketViewModel {
     func addToFirebase(id: Int){
         let item = basketFoods?.first{food in food.sepet_yemek_id == String(id)}
         let params: [String:Any] = ["name":item?.yemek_adi ?? "","fiyat":item?.yemek_fiyat ?? "","status":Status.deleted.rawValue]
-        URL_FIREBASE.document().setData(params)
+        URL_FIREBASE.addDocument(data: params) { error in
+            if error != nil {
+                print(error?.localizedDescription ?? "")
+            }
+        }
     }
 }
