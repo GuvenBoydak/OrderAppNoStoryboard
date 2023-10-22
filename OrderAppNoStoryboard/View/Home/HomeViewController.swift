@@ -17,20 +17,13 @@ final class HomeViewController: UICollectionViewController {
     }()
     let homeVM = HomeViewModel()
 // MARK: - Lifecycle
+    override func viewWillAppear(_ animated: Bool) {
+        fetchFoods()
+    }
      init() {
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
          style()
          layout()
-         homeVM.fetchFoods() { [weak self] response,error in
-             if error != nil {
-                 print(error?.localizedDescription ?? "")
-             }
-             if let data = response,!data.isEmpty {
-                 DispatchQueue.main.async {
-                     self?.collectionView.reloadData()
-                 }
-             }
-         }
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -39,24 +32,48 @@ final class HomeViewController: UICollectionViewController {
 // MARK: - Helpers
 extension HomeViewController {
     private func style() {
+        view.backgroundColor = .white
         collectionView.register(HomeCell.self, forCellWithReuseIdentifier: reuseHomeCellIdentifier)
         searchBar.delegate = self
         searchBar.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.contentInsetAdjustmentBehavior = .never
+        collectionView!.translatesAutoresizingMaskIntoConstraints = false
     }
     private func layout() {
         view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor,constant: 4),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    private func fetchFoods() {
+        homeVM.fetchFoods() { [weak self] response,error in
+            if error != nil {
+                print(error?.localizedDescription ?? "")
+            }
+            if let data = response,!data.isEmpty {
+                DispatchQueue.main.async {
+                    self?.collectionView.reloadData()
+                }
+            }
+        }
     }
 }
 // MARK: - UISearchBarDelegate
 extension HomeViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print(searchText)
+        if searchText == "" {
+            fetchFoods()
+        } else {
+            homeVM.searchFoods(searchText: searchText)
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+        }
     }
 }
 // MARK: - UICollectionViewDataSource
@@ -85,9 +102,6 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return .init(top: 0, left: 10, bottom: 0, right: 10)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return .init(width: view.frame.width - 10, height: 160)
     }
 }
 // MARK: - HomeCellProtocol

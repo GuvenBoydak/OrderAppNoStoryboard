@@ -42,4 +42,10 @@ final class HomeViewModel {
         let params: [String:Any] = ["name":basket.yemek_adi ?? "","fiyat":basket.yemek_fiyat ?? "","status":Status.added.rawValue]
         URL_FIREBASE.document().setData(params)
     }
+    
+    func searchFoods(searchText: String) {
+        let findFood = foods.filter { $0.yemek_adi.lowercased().contains(searchText.lowercased()) }
+        foods.removeAll()
+        foods = findFood
+    }
 }
