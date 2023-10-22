@@ -23,6 +23,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     fileprivate func createTabBarController(rootViewController: UITabBarController)-> UITabBarController{
         let appearance = UITabBarAppearance()
         appearance.configureWithDefaultBackground()
+        appearance.backgroundColor = UIColor(named: "background")
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.systemBlue
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.red
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         rootViewController.tabBar.standardAppearance = appearance
         rootViewController.tabBar.scrollEdgeAppearance = appearance
         return rootViewController

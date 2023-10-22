@@ -28,13 +28,14 @@ extension MainTabBarController {
         
     }
     private func createViewController(controller:UIViewController,name: String,image: String)-> UIViewController {
-        let appeareance = UINavigationBarAppearance()
+        let appearance = UINavigationBarAppearance()
+        appearance.backgroundColor = UIColor(named: "background")
         controller.title = name
         let rootcontroller = UINavigationController(rootViewController: controller)
-        rootcontroller.navigationBar.standardAppearance = appeareance
-        rootcontroller.navigationBar.scrollEdgeAppearance = appeareance
-        rootcontroller.navigationBar.scrollEdgeAppearance = appeareance
-        rootcontroller.navigationBar.compactAppearance = appeareance
+        rootcontroller.navigationBar.standardAppearance = appearance
+        rootcontroller.navigationBar.scrollEdgeAppearance = appearance
+        rootcontroller.navigationBar.scrollEdgeAppearance = appearance
+        rootcontroller.navigationBar.compactAppearance = appearance
         rootcontroller.tabBarItem.title = name
         rootcontroller.tabBarItem.image = UIImage(systemName: image)
         return rootcontroller
