@@ -92,8 +92,9 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
 }
 // MARK: - HomeCellProtocol
 extension HomeViewController: HomeCellProtocol {
-    func addToBasket(in cell: HomeCell) {
-        print("")
+    func addToBasket(in cell: HomeCell,item: Basket) {
+        homeVM.addToBasket(item: item)
+        homeVM.addToFirebase(item: item)
     }
     func increaseQuantity(in cell: HomeCell) {
         if let text = cell.quantityLabel.text, var quantity = Int(text) {
