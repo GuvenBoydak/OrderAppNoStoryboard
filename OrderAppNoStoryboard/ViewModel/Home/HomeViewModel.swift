@@ -39,7 +39,7 @@ final class HomeViewModel {
         }
     }
     func addToFirebase(item basket: Basket) {
-        let params: [String:Any] = ["name":basket.yemek_adi ?? "","fiyat":basket.yemek_fiyat ?? "","status":Status.added.rawValue]
+        let params: [String:Any] = ["name":basket.yemek_adi ?? "","price":basket.yemek_fiyat ?? "","status":Status.added.rawValue]
         URL_FIREBASE.document().setData(params)
     }
     

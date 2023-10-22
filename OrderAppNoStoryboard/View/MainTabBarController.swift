@@ -6,9 +6,6 @@
 //
 
 import UIKit
-// MARK: - Properties
-// MARK: - Lifecycle
-// MARK: - Helpers
 
 final class MainTabBarController: UITabBarController {
     // MARK: - Properties

@@ -11,7 +11,6 @@ private let reuseBasketCellIdentifier = "BasketCell"
 final class BasketViewController: UICollectionViewController {
     // MARK: - Properties
     var basketVM = BasketViewModel()
-   // weak var delegate: BasketCellProtocol?
     
     private let totalPriceContainerView: UIView = {
         let view = UIView()
@@ -100,10 +99,12 @@ extension BasketViewController {
         totalPriceLabel.text = "\(totalPrice ?? 0)₺"
     }
     private func getBasketItems() {
-        basketVM.getBasketFoods { basket in
+        basketVM.getBasketFoods { [weak self] basket in
             if basket != nil {
-                self.collectionView.reloadData()
-                self.calculateTotalprice()
+                DispatchQueue.main.async {
+                    self?.collectionView.reloadData()
+                }
+                self?.calculateTotalprice()
             }
         }
     }
